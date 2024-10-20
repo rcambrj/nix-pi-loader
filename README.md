@@ -116,7 +116,8 @@ You can use zram to fix that.
   };
 ```
 
-Alternatively, use another (more powerful) machine and run `nixos-rebuild` with `--target-host`
+Alternatively, configure a swap file or partition, or use another (more powerful) machine
+to run `nixos-rebuild` with `--target-host`.
 
 ## Upcoming work
 
@@ -130,6 +131,17 @@ suggesting that this change be merged to nixpkgs.
 If this functionality get upstreamed, then `boot.loader.generic-extlinux-compatible-pi-loader`
 will be removed, so please keep that in mind when checking for new versions of this module.
 
+### Write tests
+
+TODO: learn how to write nix tests, then write tests
+
+### Fix nixos-rebuild for low RAM boards
+
+`nixos-rebuild` will not work if the board has less than ~1.5GB RAM. While this can be fixed with
+zram, there's only so much that zram can do, that is to say that boards with 512MB RAM cannot
+magic 300% RAM. Some alternatives are mentioned in the troubleshooting section, but I wonder
+whether `nixos-rebuild` can be run with some parameters to make it less demanding.
+
 ### Pi firmwares in nixpkgs
 
 There already exists a [raspberrypi.nix] in nixpkgs which has been abandoned and the NixOS team
@@ -139,10 +151,12 @@ via the `generic-extlinux-compatible` module and anything beyond that is the use
 
 So upstreaming the main part of this module to nixpkgs is unlikely to happen.
 
-### Write tests
+## Credits
 
-TODO: learn how to write nix tests, then write tests
+A lot of this module is based on [sd-image-aarch64.nix]. Thanks for all the work
+which went into that module and everything which leads up to it.
 
+I've merely put the cherry on top (and badly at that).
 
 [NixOS ARM installation image]: https://nixos.org/download/#nixos-iso
 [nixos-anywhere]: https://github.com/nix-community/nixos-anywhere
@@ -151,10 +165,3 @@ TODO: learn how to write nix tests, then write tests
 [raspberrypi.nix]: https://github.com/NixOS/nixpkgs/blob/6afb255d976f85f3359e4929abd6f5149c323a02/nixos/modules/system/boot/loader/raspberrypi/raspberrypi.nix
 [github releases]: https://github.com/rcambrj/nix-pi-loader/releases/
 [sd-image-aarch64.nix]: https://github.com/NixOS/nixpkgs/blob/794d005bdd26af909ecbe6e4fc618f14518d4df4/nixos/modules/installer/sd-card/sd-image-aarch64.nix
-
-## Credits
-
-A lot of this module is based on [sd-image-aarch64.nix]. Thanks for all the work
-which went into that module and everything which leads up to it.
-
-I've merely put the cherry on top (and badly at that).
