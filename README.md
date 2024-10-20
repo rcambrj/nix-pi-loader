@@ -110,10 +110,10 @@ If your board has less than ~1.5GB RAM, you might see it lockup when running nix
 You can use zram to fix that.
 
 ```
-  zramSwap = {
-    enable = true;
-	memoryPercent = 50; # play with this number
-  };
+zramSwap = {
+  enable = true;
+  memoryPercent = 50; # play with this number
+};
 ```
 
 Alternatively, configure a swap file or partition, or use another (more powerful) machine
