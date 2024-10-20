@@ -150,3 +150,11 @@ TODO: learn how to write nix tests, then write tests
 [NixOS wiki on Raspberry Pi 5]: https://wiki.nixos.org/wiki/NixOS_on_ARM/Raspberry_Pi_5
 [raspberrypi.nix]: https://github.com/NixOS/nixpkgs/blob/6afb255d976f85f3359e4929abd6f5149c323a02/nixos/modules/system/boot/loader/raspberrypi/raspberrypi.nix
 [github releases]: https://github.com/rcambrj/nix-pi-loader/releases/
+[sd-image-aarch64.nix]: https://github.com/NixOS/nixpkgs/blob/794d005bdd26af909ecbe6e4fc618f14518d4df4/nixos/modules/installer/sd-card/sd-image-aarch64.nix
+
+## Credits
+
+A lot of this module is based on [sd-image-aarch64.nix]. Thanks for all the work
+which went into that module and everything which leads up to it.
+
+I've merely put the cherry on top (and badly at that).
