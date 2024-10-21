@@ -1,7 +1,6 @@
-args@{ config, flake, lib, modulesPath, pkgs, ... }: with lib; {
+{ config, flake, lib, modulesPath, pkgs, ... }: with lib; {
   imports = [
     "${toString modulesPath}/profiles/base.nix"
-    flake.inputs.nixos-hardware.nixosModules.raspberry-pi-3
 
     flake.nixosModules.default
     # when copying this configuration, replace with:

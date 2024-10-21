@@ -1,0 +1,23 @@
+name: Build all
+
+on:
+  check_suite:
+    # once garnix has completed
+    types: [completed]
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build-pi3:
+    uses: ./.github/workflows/build
+    with:
+      host: pi3
+  build-pi4:
+    uses: ./.github/workflows/build
+    with:
+      host: pi4
+  build-pi5:
+    uses: ./.github/workflows/build
+    with:
+      host: pi5

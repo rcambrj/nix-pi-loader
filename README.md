@@ -40,7 +40,7 @@ In the following table, `aarch64` is assumed unless otherwise noted.
 | Raspberry Pi 2        | ❌     | 32 bit (armv7l) so no binary cache                |
 | Raspberry Pi Zero 2W  | ??     | untested. probably boots but cannot nixos-rebuild |
 | Raspberry Pi 3        | ✅     | boots. requires zram for nixos-rebuild            |
-| Raspberry Pi 4        | ??     | untested. probably works                          |
+| Raspberry Pi 4        | ✅     | boots. requires zram for nixos-rebuild if 1GB RAM |
 | Raspberry Pi 5        | ??     | untested. see [NixOS wiki on Raspberry Pi 5]      |
 | Your favourite board  | ??     | PRs welcome!                                      |
 
@@ -68,12 +68,17 @@ It isn't intended to serve as a long lived OS for your board. For that, keep rea
 
 ```
 # flake.nix
-inputs.nix-pi-loader.url = "github:rcambrj/nix-pi-loader";
+inputs.nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+inputs.nix-pi-loader.url  = "github:rcambrj/nix-pi-loader";
 ```
 
 ```
 # configuration.nix
 imports = [
+  # select the relevant nixos-hardware module
+  # inputs.nixos-hardware.nixosModules.raspberry-pi-3
+  # inputs.nixos-hardware.nixosModules.raspberry-pi-4
+
 	inputs.nix-pi-loader.nixosModules.default
 ];
 boot.pi-loader.enable = true;
