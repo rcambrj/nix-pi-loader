@@ -10,14 +10,14 @@ on:
 
 jobs:
   build-pi3:
-    uses: ./.github/workflows/build
+    uses: ./.github/workflows/build.yml
     with:
       host: pi3
   build-pi4:
-    uses: ./.github/workflows/build
+    uses: ./.github/workflows/build.yml
     with:
       host: pi4
   build-pi5:
-    uses: ./.github/workflows/build
+    uses: ./.github/workflows/build.yml
     with:
       host: pi5
