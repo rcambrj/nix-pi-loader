@@ -74,6 +74,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = false;
     boot.loader.generic-extlinux-compatible-pi-loader.enable = true;
     boot.loader.generic-extlinux-compatible-pi-loader.extraCommandsAfter = let
@@ -83,28 +84,20 @@ in {
         # Add generic files
         cd ${pkgs.raspberrypifw}/share/raspberrypi/boot
         ${atomicCopy} bootcode.bin ${cfg.firmwareDir}/bootcode.bin
+        ${atomicCopy} overlays     ${cfg.firmwareDir}/overlays
         ${pkgs.findutils}/bin/find . -type f -name 'fixup*.dat' -exec ${atomicCopy} {} ${cfg.firmwareDir}/{} \;
         ${pkgs.findutils}/bin/find . -type f -name 'start*.elf' -exec ${atomicCopy} {} ${cfg.firmwareDir}/{} \;
+        ${pkgs.findutils}/bin/find . -type f -name '*.dtb'      -exec ${atomicCopy} {} ${cfg.firmwareDir}/{} \;
 
         # Add the config
         ${atomicCopy} ${configTxt} ${cfg.firmwareDir}/config.txt
 
         # Add pi3 specific files
         ${atomicCopy} ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin                            ${cfg.firmwareDir}/u-boot-rpi3.bin
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-2-b.dtb      ${cfg.firmwareDir}/bcm2710-rpi-2-b.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b.dtb      ${cfg.firmwareDir}/bcm2710-rpi-3-b.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b-plus.dtb ${cfg.firmwareDir}/bcm2710-rpi-3-b-plus.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-cm3.dtb      ${cfg.firmwareDir}/bcm2710-rpi-cm3.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2.dtb   ${cfg.firmwareDir}/bcm2710-rpi-zero-2.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2-w.dtb ${cfg.firmwareDir}/bcm2710-rpi-zero-2-w.dtb
 
         # Add pi4 specific files
         ${atomicCopy} ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin                        ${cfg.firmwareDir}/u-boot-rpi4.bin
         ${atomicCopy} ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin                     ${cfg.firmwareDir}/armstub8-gic.bin
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-4-b.dtb  ${cfg.firmwareDir}/bcm2711-rpi-4-b.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-400.dtb  ${cfg.firmwareDir}/bcm2711-rpi-400.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4.dtb  ${cfg.firmwareDir}/bcm2711-rpi-cm4.dtb
-        ${atomicCopy} ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4s.dtb ${cfg.firmwareDir}/bcm2711-rpi-cm4s.dtb
       '';
     in [ (toString setupRaspiBoot) ];
   };
