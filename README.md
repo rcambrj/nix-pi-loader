@@ -59,7 +59,7 @@ there instead, but please see the upcoming work section for why this might be re
 system.build.image = (import "${toString modulesPath}/../lib/make-disk-image.nix" {
   inherit lib config pkgs;
   format = "raw";
-  partitionTableType = "efi";
+  partitionTableType = "legacy+boot";
   touchEFIVars = false;
   installBootLoader = true;
 });
