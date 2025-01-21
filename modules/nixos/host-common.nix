@@ -13,10 +13,10 @@
     enable = true;
   };
 
-  system.build.image = (import "${toString modulesPath}/../lib/make-disk-image.nix" {
+  system.build.image = (import ./make-disk-image.nix {
     inherit lib config pkgs;
     format = "raw";
-    partitionTableType = "efi";
+    partitionTableType = "legacy+boot";
     copyChannel = false;
     diskSize = "auto";
     additionalSpace = "64M";
@@ -34,7 +34,7 @@
 
   fileSystems = {
     "/boot" = {
-      device = "/dev/disk/by-label/ESP";
+      device = "/dev/disk/by-label/BOOT";
       fsType = "vfat";
     };
     "/" = {
