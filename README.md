@@ -10,6 +10,8 @@ While [nix-community/raspberry-pi-nix] has wide support for creating images whic
 Raspberry Pis, the approach of using `sd-image.nix` restricts the ability to test the machine
 end to end (including bootloader) using `qemu-vm.nix`, which is what `testers.runNixOSTest` uses.
 
+This repository doesn't yet perform any tests with `testers.runNixOSTest`, but that will come soon.
+
 ## Getting started
 
 ### Prebuilt image
@@ -30,6 +32,8 @@ It isn't intended to serve as a long lived OS for your board.
 
 ### Roll your own
 
+For something more sustainable, make your own `nixosConfiguration` with the following:
+
 ```
 # flake.nix
 inputs.nixos-hardware.url = "github:NixOS/nixos-hardware/master";
@@ -49,14 +53,16 @@ boot.pi-loader.enable = true;
 ```
 
 You cannot use `boot.loader.generic-extlinux-compatible`. This module disables it because it has its
-own modified version at `boot.loader.generic-extlinux-compatible-pi-loader`. You can set options
-there instead, but please see the upcoming work section for why this might be removed in the future.
+own modified version at `boot.loader.generic-extlinux-compatible-pi-loader`. You can customise options
+there instead.
 
 ### Building an image file
 
+To put this onto a Raspberry Pi, have nix create a disk image then burn the image to an SD/USB.
+
 ```
 # configuration.nix
-system.build.image = (import "${toString modulesPath}/../lib/make-disk-image.nix" {
+system.build.image = (inputs.nix-pi-loader.nixosModules.make-disk-image {
   inherit lib config pkgs;
   format = "raw";
   partitionTableType = "legacy+boot";

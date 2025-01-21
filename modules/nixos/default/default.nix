@@ -4,6 +4,13 @@
 #
 { config, lib, pkgs, ... }: with lib; let
   cfg = config.boot.pi-loader;
+
+  # used for direct-to-kernel boot only: emulate cleanName()
+  # https://github.com/NixOS/nixpkgs/blob/904ecf0b4e055dc465f5ae6574be2af8cc25dec3/nixos/modules/system/boot/loader/generic-extlinux-compatible/extlinux-conf-builder.sh#L47
+  kernelStorePath = "${config.system.build.kernel}/${config.system.boot.loader.kernelFile}";
+  initrdStorePath = "${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile}";
+  kernelBootPath = "nixos/${builtins.replaceStrings [ "/nix/store/" "/" ] [ "" "-" ] kernelStorePath}";
+  initrdBootPath = "nixos/${builtins.replaceStrings [ "/nix/store/" "/" ] [ "" "-" ] initrdStorePath}";
 in {
   imports = [
     ../generic-extlinux-compatible
@@ -29,27 +36,57 @@ in {
       type = types.str;
       default = "/boot";
     };
+    bootMode = mkOption {
+      description = "Select whether to boot direct to kernel or use uboot. Direct to kernel will not allow generation selection";
+      type = types.enum [ "uboot" "direct" ];
+      default = "uboot";
+    };
+    rootPartition = mkOption {
+      description = "Kernel parameter (`root=`) used only for direct to kernel boot to identify the root partition.";
+      default = "LABEL=nixos";
+    };
     configTxt = mkOption {
       type = types.attrs;
       default = {
         pi3 = {
-          kernel = "u-boot-rpi3.bin";
-        };
+          direct = {
+            kernel = kernelBootPath;
+            ramfsfile = initrdBootPath;
+            ramfsaddr = -1;
+          };
+          uboot = {
+            kernel = "u-boot-rpi3.bin";
+          };
+        }.${cfg.bootMode};
         pi02 = {
-          kernel = "u-boot-rpi3.bin";
-        };
+          direct = {
+            kernel = kernelBootPath;
+            ramfsfile = initrdBootPath;
+            ramfsaddr = -1;
+          };
+          uboot = {
+            kernel = "u-boot-rpi3.bin";
+          };
+        }.${cfg.bootMode};
         pi4 = {
-          kernel = "u-boot-rpi4.bin";
-          enable_gic = 1;
-          armstub = "armstub8-gic.bin";
+            # Otherwise the resolution will be weird in most cases, compared to
+            # what the pi3 firmware does by default.
+            disable_overscan = 1;
 
-          # Otherwise the resolution will be weird in most cases, compared to
-          # what the pi3 firmware does by default.
-          disable_overscan = 1;
-
-          # Supported in newer board revisions
-          arm_boost = 1;
-        };
+            # Supported in newer board revisions
+            arm_boost = 1;
+        } // ({
+          direct = {
+            kernel = kernelBootPath;
+            ramfsfile = initrdBootPath;
+            ramfsaddr = -1;
+          };
+          uboot = {
+            kernel = "u-boot-rpi4.bin";
+            enable_gic = 1;
+            armstub = "armstub8-gic.bin";
+          };
+        }.${cfg.bootMode});
         cm4 = {
           # Enable host mode on the 2711 built-in XHCI USB controller.
           # This line should be removed if the legacy DWC2 controller is required
@@ -77,28 +114,53 @@ in {
     boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = false;
     boot.loader.generic-extlinux-compatible-pi-loader.enable = true;
+    boot.kernelParams = [
+      # todo
+    ] ++ ({
+      direct = [
+          "root=${cfg.rootPartition}"
+          "rootfstype=ext4"
+          "rootwait"
+          "init=/nix/var/nix/profiles/system/init"
+      ];
+      uboot = [];
+    }.${cfg.bootMode});
     boot.loader.generic-extlinux-compatible-pi-loader.extraCommandsAfter = let
-      atomicCopy = import ./atomic-copy.nix { inherit pkgs; };
+      atomicCopySafe = import ../atomic-copy-safe { inherit pkgs; };
+      atomicCopyClobber = import ../atomic-copy-clobber { inherit pkgs; };
       configTxt = (pkgs.formats.ini {}).generate "config.txt" cfg.configTxt;
-      setupRaspiBoot = pkgs.writeShellScript "cp-pi-loaders.sh" ''
-        # Add generic files
-        cd ${pkgs.raspberrypifw}/share/raspberrypi/boot
-        ${atomicCopy} bootcode.bin ${cfg.firmwareDir}/bootcode.bin
-        ${atomicCopy} overlays     ${cfg.firmwareDir}/overlays
-        ${pkgs.findutils}/bin/find . -type f -name 'fixup*.dat' -exec ${atomicCopy} {} ${cfg.firmwareDir}/{} \;
-        ${pkgs.findutils}/bin/find . -type f -name 'start*.elf' -exec ${atomicCopy} {} ${cfg.firmwareDir}/{} \;
-        ${pkgs.findutils}/bin/find . -type f -name '*.dtb'      -exec ${atomicCopy} {} ${cfg.firmwareDir}/{} \;
+      cmdLineTxt = pkgs.writeTextFile {
+        name = "cmdline.txt";
+        text = ''
+          ${lib.strings.concatStringsSep " " config.boot.kernelParams}
+        '';
+      };
+      setupRaspiBoot = pkgs.writeShellScript "cp-pi-loaders.sh" (''
+          # Add generic files
+          cd ${pkgs.raspberrypifw}/share/raspberrypi/boot
+          ${atomicCopySafe} bootcode.bin                                                     ${cfg.firmwareDir}/bootcode.bin
+          ${atomicCopySafe} overlays                                                         ${cfg.firmwareDir}/overlays
+          ${pkgs.findutils}/bin/find . -type f -name 'fixup*.dat' -exec ${atomicCopySafe} {} ${cfg.firmwareDir}/{} \;
+          ${pkgs.findutils}/bin/find . -type f -name 'start*.elf' -exec ${atomicCopySafe} {} ${cfg.firmwareDir}/{} \;
+          ${pkgs.findutils}/bin/find . -type f -name '*.dtb'      -exec ${atomicCopySafe} {} ${cfg.firmwareDir}/{} \;
 
-        # Add the config
-        ${atomicCopy} ${configTxt} ${cfg.firmwareDir}/config.txt
+          # Add pi3 specific files
+          ${atomicCopySafe} ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin                       ${cfg.firmwareDir}/u-boot-rpi3.bin
 
-        # Add pi3 specific files
-        ${atomicCopy} ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin                            ${cfg.firmwareDir}/u-boot-rpi3.bin
+          # Add pi4 specific files
+          ${atomicCopySafe} ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin                       ${cfg.firmwareDir}/u-boot-rpi4.bin
+          ${atomicCopySafe} ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin                    ${cfg.firmwareDir}/armstub8-gic.bin
 
-        # Add pi4 specific files
-        ${atomicCopy} ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin                        ${cfg.firmwareDir}/u-boot-rpi4.bin
-        ${atomicCopy} ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin                     ${cfg.firmwareDir}/armstub8-gic.bin
-      '';
+          # Add config.txt
+          ${atomicCopyClobber} ${configTxt}                                                  ${cfg.firmwareDir}/config.txt
+        '' + {
+          direct = ''
+            # Add cmdline.txt
+            ${atomicCopyClobber} ${cmdLineTxt}                                                 ${cfg.firmwareDir}/cmdline.txt
+          '';
+          uboot = "";
+        }.${cfg.bootMode}
+      );
     in [ (toString setupRaspiBoot) ];
   };
 }

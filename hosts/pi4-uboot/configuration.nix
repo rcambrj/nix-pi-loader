@@ -2,6 +2,7 @@
   imports = [
     flake.nixosModules.host-common
 
-    flake.inputs.nixos-hardware.nixosModules.raspberry-pi-5
+    flake.inputs.nixos-hardware.nixosModules.raspberry-pi-4
   ];
+  boot.pi-loader.bootMode = "uboot";
 }

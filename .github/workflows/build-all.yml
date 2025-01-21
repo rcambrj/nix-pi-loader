@@ -9,25 +9,46 @@ on:
       - "*"
 
 jobs:
-  build-pi3:
+  build-pi3-direct:
     uses: ./.github/workflows/build.yml
     with:
-      host: pi3
+      host: pi3-direct
     permissions:
       contents: write
       id-token: write
-  build-pi4:
+  build-pi3-uboot:
     uses: ./.github/workflows/build.yml
     with:
-      host: pi4
+      host: pi3-uboot
+    permissions:
+      contents: write
+      id-token: write
+  build-pi4-direct:
+    uses: ./.github/workflows/build.yml
+    with:
+      host: pi4-direct
+    permissions:
+      contents: write
+      id-token: write
+  build-pi4-uboot:
+    uses: ./.github/workflows/build.yml
+    with:
+      host: pi4-uboot
     permissions:
       contents: write
       id-token: write
   # disabled until pi5 works, so the builds arent all red
-  # build-pi5:
+  # build-pi5-direct:
   #   uses: ./.github/workflows/build.yml
   #   with:
-  #     host: pi5
+  #     host: pi5-direct
+  #   permissions:
+  #     contents: write
+  #     id-token: write
+  # build-pi5-uboot:
+  #   uses: ./.github/workflows/build.yml
+  #   with:
+  #     host: pi5-uboot
   #   permissions:
   #     contents: write
   #     id-token: write
