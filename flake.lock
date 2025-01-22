@@ -39,16 +39,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1737469691,
-        "narHash": "sha256-nmKOgAU48S41dTPIXAq0AHZSehWUn6ZPrUKijHAMmIk=",
-        "owner": "NixOS",
+        "lastModified": 1737544269,
+        "narHash": "sha256-x1xxfuoxdWV3XBrUhtTOnaRkXX3G074CKT84D7f72n4=",
+        "owner": "Mic92",
         "repo": "nixpkgs",
-        "rev": "9e4d5190a9482a1fb9d18adf0bdb83c6e506eaab",
+        "rev": "85aea8d7b9e1da668b7681344e0790b140a7d8d6",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
+        "owner": "Mic92",
+        "ref": "runinlinuxvm-virtiofsd-disable-seccomp",
         "repo": "nixpkgs",
         "type": "github"
       }
