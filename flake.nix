@@ -11,7 +11,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:rcambrj/nixpkgs?ref=mic92s-fix-on-building-kernel";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=066f909d15dc8bccd9b36546a26ab1d8069aeeae";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     blueprint.url = "github:numtide/blueprint";
     blueprint.inputs.nixpkgs.follows = "nixpkgs";

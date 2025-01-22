@@ -39,16 +39,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1737546493,
-        "narHash": "sha256-pCvo81GQfY+NKdzCN1RDc6SR76ET6RPBCvB4T9TmxIc=",
-        "owner": "rcambrj",
+        "lastModified": 1736106195,
+        "narHash": "sha256-yyMXxehZwyjVthJgndQS2ZqFuSIA/tcJ5DSvK2zvEqg=",
+        "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "1fdcfeec52ead9db2a63f9283332a77c04d126f7",
+        "rev": "066f909d15dc8bccd9b36546a26ab1d8069aeeae",
         "type": "github"
       },
       "original": {
-        "owner": "rcambrj",
-        "ref": "mic92s-fix-on-building-kernel",
+        "owner": "nixos",
+        "ref": "066f909d15dc8bccd9b36546a26ab1d8069aeeae",
         "repo": "nixpkgs",
         "type": "github"
       }
