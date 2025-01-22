@@ -11,7 +11,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:Mic92/nixpkgs?ref=runinlinuxvm-virtiofsd-disable-seccomp";
+    nixpkgs.url = "github:rcambrj/nixpkgs?ref=mic92s-fix-on-building-kernel";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     blueprint.url = "github:numtide/blueprint";
     blueprint.inputs.nixpkgs.follows = "nixpkgs";

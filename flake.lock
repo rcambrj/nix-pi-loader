@@ -39,16 +39,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1737544269,
-        "narHash": "sha256-x1xxfuoxdWV3XBrUhtTOnaRkXX3G074CKT84D7f72n4=",
-        "owner": "Mic92",
+        "lastModified": 1737546493,
+        "narHash": "sha256-pCvo81GQfY+NKdzCN1RDc6SR76ET6RPBCvB4T9TmxIc=",
+        "owner": "rcambrj",
         "repo": "nixpkgs",
-        "rev": "85aea8d7b9e1da668b7681344e0790b140a7d8d6",
+        "rev": "1fdcfeec52ead9db2a63f9283332a77c04d126f7",
         "type": "github"
       },
       "original": {
-        "owner": "Mic92",
-        "ref": "runinlinuxvm-virtiofsd-disable-seccomp",
+        "owner": "rcambrj",
+        "ref": "mic92s-fix-on-building-kernel",
         "repo": "nixpkgs",
         "type": "github"
       }
