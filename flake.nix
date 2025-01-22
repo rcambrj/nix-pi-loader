@@ -11,7 +11,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=bffc22eb12172e6db3c5dde9e3e5628f8e3e7912";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     blueprint.url = "github:numtide/blueprint";
     blueprint.inputs.nixpkgs.follows = "nixpkgs";
