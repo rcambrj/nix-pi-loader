@@ -1,9 +1,28 @@
+name: Build
+
 on:
   workflow_call:
     inputs:
       host:
         required: true
         type: string
+  workflow_dispatch:
+    inputs:
+      host:
+        type: choice
+        description: Host
+        required: true
+        options:
+          - pi3-direct
+          - pi3-uboot
+          - pi4-direct
+          - pi4-uboot
+          - pi5-direct
+          - pi5-uboot
+      debug_enabled:
+        type: boolean
+        description: Start tmate debug session
+        required: false
 
 jobs:
   build:
@@ -36,6 +55,10 @@ jobs:
         uses: DeterminateSystems/magic-nix-cache-action@v2
         with:
           diagnostic-endpoint: ""
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
       - name: Build image
         run: nix build -v --extra-experimental-features "nix-command flakes" --print-out-paths -L '.#nixosConfigurations.${{ inputs.host }}.config.system.build.image'
