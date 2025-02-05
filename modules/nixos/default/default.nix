@@ -48,6 +48,7 @@ in {
     configTxt = mkOption {
       type = types.attrs;
       default = {
+        # https://www.raspberrypi.com/documentation/computers/config_txt.html#model-filters
         pi3 = {
           direct = {
             kernel = kernelBootPath;
