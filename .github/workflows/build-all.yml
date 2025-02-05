@@ -37,18 +37,17 @@ jobs:
     permissions:
       contents: write
       id-token: write
-  # disabled until pi5 works, so the builds arent all red
-  # build-pi5-direct:
-  #   uses: ./.github/workflows/build.yml
-  #   with:
-  #     host: pi5-direct
-  #   permissions:
-  #     contents: write
-  #     id-token: write
-  # build-pi5-uboot:
-  #   uses: ./.github/workflows/build.yml
-  #   with:
-  #     host: pi5-uboot
-  #   permissions:
-  #     contents: write
-  #     id-token: write
+  build-pi5-direct:
+    uses: ./.github/workflows/build.yml
+    with:
+      host: pi5-direct
+    permissions:
+      contents: write
+      id-token: write
+  build-pi5-uboot:
+    uses: ./.github/workflows/build.yml
+    with:
+      host: pi5-uboot
+    permissions:
+      contents: write
+      id-token: write

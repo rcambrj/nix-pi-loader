@@ -94,6 +94,25 @@ in {
           # (e.g. for USB device mode) or if USB support is not required.
           otg_mode = 1;
         };
+        pi5 = {
+          # no defaults
+        } // ({
+          direct = {
+            kernel = kernelBootPath;
+            ramfsfile = initrdBootPath;
+            ramfsaddr = -1;
+          };
+          uboot = {
+            kernel = "u-boot-rpi4.bin";
+            # TODO: build and use rpi5 armstub
+            # https://forums.raspberrypi.com/viewtopic.php?t=370583
+            # https://github.com/raspberrypi/tools/blob/master/armstubs/armstub8.S
+            # vs
+            # https://github.com/raspberrypi/arm-trusted-firmware/tree/bcm2712
+            # enable_gic = 1;
+            # armstub = "armstub8-gic.bin";
+          };
+        }.${cfg.bootMode});
         all = {
           # Boot in 64-bit mode.
           arm_64bit = 1;
