@@ -5,4 +5,5 @@
     flake.inputs.nixos-hardware.nixosModules.raspberry-pi-3
   ];
   boot.pi-loader.bootMode = "direct";
+  boot.kernelPackages = pkgs.linuxKernel.kernels.linux_rpi3;
 }
