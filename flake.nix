@@ -1,5 +1,5 @@
 {
-  description = "my flake";
+  description = "A module to make booting your NixOS configuration possible on a Raspberry Pi";
 
   nixConfig = {
     extra-substituters = [
