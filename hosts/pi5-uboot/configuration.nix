@@ -1,6 +1,6 @@
 { config, flake, lib, modulesPath, pkgs, ... }: with lib; {
   imports = [
-    flake.nixosModules.host-common
+    ../../helpers/host-common.nix
 
     flake.inputs.nixos-hardware.nixosModules.raspberry-pi-5
   ];

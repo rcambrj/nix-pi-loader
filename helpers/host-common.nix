@@ -4,7 +4,7 @@
 
     flake.nixosModules.default
     # when copying this configuration, replace with:
-    # flake.inputs.nix-pi-loader.nixosModules.default
+    # inputs.nix-pi-loader.nixosModules.default
   ];
 
   nixpkgs.hostPlatform = "aarch64-linux";
@@ -13,7 +13,7 @@
     enable = true;
   };
 
-  system.build.image = (import ./make-disk-image.nix {
+  system.build.image = (import ../modules/nixos/make-disk-image.nix {
     inherit lib config pkgs;
     format = "raw";
     partitionTableType = "legacy+boot";

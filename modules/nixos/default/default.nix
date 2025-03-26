@@ -146,8 +146,8 @@ in {
       uboot = [];
     }.${cfg.bootMode});
     boot.loader.generic-extlinux-compatible-pi-loader.extraCommandsAfter = let
-      atomicCopySafe = import ../atomic-copy-safe { inherit pkgs; };
-      atomicCopyClobber = import ../atomic-copy-clobber { inherit pkgs; };
+      atomicCopySafe = import ./atomic-copy-safe { inherit pkgs; };
+      atomicCopyClobber = import ./atomic-copy-clobber { inherit pkgs; };
       configTxt = (pkgs.formats.ini {}).generate "config.txt" cfg.configTxt;
       cmdLineTxt = pkgs.writeTextFile {
         name = "cmdline.txt";
