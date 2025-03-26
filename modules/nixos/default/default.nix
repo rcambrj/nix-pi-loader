@@ -11,6 +11,87 @@
   initrdStorePath = "${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile}";
   kernelBootPath = "nixos/${builtins.replaceStrings [ "/nix/store/" "/" ] [ "" "-" ] kernelStorePath}";
   initrdBootPath = "nixos/${builtins.replaceStrings [ "/nix/store/" "/" ] [ "" "-" ] initrdStorePath}";
+
+  defaultConfigTxt = {
+    # https://www.raspberrypi.com/documentation/computers/config_txt.html#model-filters
+    pi3 = {
+      direct = {
+        kernel = kernelBootPath;
+        ramfsfile = initrdBootPath;
+        ramfsaddr = -1;
+      };
+      uboot = {
+        kernel = "u-boot-rpi3.bin";
+      };
+    }.${cfg.bootMode};
+    pi02 = {
+      direct = {
+        kernel = kernelBootPath;
+        ramfsfile = initrdBootPath;
+        ramfsaddr = -1;
+      };
+      uboot = {
+        kernel = "u-boot-rpi3.bin";
+      };
+    }.${cfg.bootMode};
+    pi4 = {
+        # Otherwise the resolution will be weird in most cases, compared to
+        # what the pi3 firmware does by default.
+        disable_overscan = 1;
+
+        # Supported in newer board revisions
+        arm_boost = 1;
+    } // ({
+      direct = {
+        kernel = kernelBootPath;
+        ramfsfile = initrdBootPath;
+        ramfsaddr = -1;
+      };
+      uboot = {
+        kernel = "u-boot-rpi4.bin";
+        enable_gic = 1;
+        armstub = "armstub8-gic.bin";
+      };
+    }.${cfg.bootMode});
+    cm4 = {
+      # Enable host mode on the 2711 built-in XHCI USB controller.
+      # This line should be removed if the legacy DWC2 controller is required
+      # (e.g. for USB device mode) or if USB support is not required.
+      otg_mode = 1;
+    };
+    pi5 = {
+      # no defaults
+    } // ({
+      direct = {
+        kernel = kernelBootPath;
+        ramfsfile = initrdBootPath;
+        ramfsaddr = -1;
+      };
+      uboot = {
+        kernel = "u-boot-rpi4.bin";
+        # TODO: build and use rpi5 armstub
+        # https://forums.raspberrypi.com/viewtopic.php?t=370583
+        # https://github.com/raspberrypi/tools/blob/master/armstubs/armstub8.S
+        # vs
+        # https://github.com/raspberrypi/arm-trusted-firmware/tree/bcm2712
+        # enable_gic = 1;
+        # armstub = "armstub8-gic.bin";
+      };
+    }.${cfg.bootMode});
+    all = {
+      # Boot in 64-bit mode.
+      arm_64bit = 1;
+
+      # U-Boot needs this to work, regardless of whether UART is actually used or not.
+      # Look in arch/arm/mach-bcm283x/Kconfig in the U-Boot tree to see if this is still
+      # a requirement in the future.
+      enable_uart = 1;
+
+      # Prevent the firmware from smashing the framebuffer setup done by the mainline kernel
+      # when attempting to show low-voltage or overtemperature warnings.
+      avoid_warnings = 1;
+    };
+  };
 in {
   imports = [
     ../generic-extlinux-compatible
@@ -46,89 +127,19 @@ in {
       default = "LABEL=nixos";
     };
     configTxt = mkOption {
+      description = "Contents of config.txt in a shape expected by makeConfigTxt. Will be merged with some minimum required boot properties.";
       type = types.attrs;
-      default = {
-        # https://www.raspberrypi.com/documentation/computers/config_txt.html#model-filters
-        pi3 = {
-          direct = {
-            kernel = kernelBootPath;
-            ramfsfile = initrdBootPath;
-            ramfsaddr = -1;
-          };
-          uboot = {
-            kernel = "u-boot-rpi3.bin";
-          };
-        }.${cfg.bootMode};
-        pi02 = {
-          direct = {
-            kernel = kernelBootPath;
-            ramfsfile = initrdBootPath;
-            ramfsaddr = -1;
-          };
-          uboot = {
-            kernel = "u-boot-rpi3.bin";
-          };
-        }.${cfg.bootMode};
-        pi4 = {
-            # Otherwise the resolution will be weird in most cases, compared to
-            # what the pi3 firmware does by default.
-            disable_overscan = 1;
-
-            # Supported in newer board revisions
-            arm_boost = 1;
-        } // ({
-          direct = {
-            kernel = kernelBootPath;
-            ramfsfile = initrdBootPath;
-            ramfsaddr = -1;
-          };
-          uboot = {
-            kernel = "u-boot-rpi4.bin";
-            enable_gic = 1;
-            armstub = "armstub8-gic.bin";
-          };
-        }.${cfg.bootMode});
-        cm4 = {
-          # Enable host mode on the 2711 built-in XHCI USB controller.
-          # This line should be removed if the legacy DWC2 controller is required
-          # (e.g. for USB device mode) or if USB support is not required.
-          otg_mode = 1;
-        };
-        pi5 = {
-          # no defaults
-        } // ({
-          direct = {
-            kernel = kernelBootPath;
-            ramfsfile = initrdBootPath;
-            ramfsaddr = -1;
-          };
-          uboot = {
-            kernel = "u-boot-rpi4.bin";
-            # TODO: build and use rpi5 armstub
-            # https://forums.raspberrypi.com/viewtopic.php?t=370583
-            # https://github.com/raspberrypi/tools/blob/master/armstubs/armstub8.S
-            # vs
-            # https://github.com/raspberrypi/arm-trusted-firmware/tree/bcm2712
-            # enable_gic = 1;
-            # armstub = "armstub8-gic.bin";
-          };
-        }.${cfg.bootMode});
-        all = {
-          # Boot in 64-bit mode.
-          arm_64bit = 1;
-
-          # U-Boot needs this to work, regardless of whether UART is actually used or not.
-          # Look in arch/arm/mach-bcm283x/Kconfig in the U-Boot tree to see if this is still
-          # a requirement in the future.
-          enable_uart = 1;
-
-          # Prevent the firmware from smashing the framebuffer setup done by the mainline kernel
-          # when attempting to show low-voltage or overtemperature warnings.
-          avoid_warnings = 1;
-        };
-      };
+      default = {};
+    };
+    defaultConfigTxt = mkOption {
+      description = "The default config.txt, for reference";
+      type = types.attrs;
+      readOnly = true;
+      default = defaultConfigTxt;
     };
   };
+
+
 
   config = mkIf cfg.enable {
     boot.loader.grub.enable = false;
@@ -148,7 +159,7 @@ in {
     boot.loader.generic-extlinux-compatible-pi-loader.extraCommandsAfter = let
       atomicCopySafe = import ./atomic-copy-safe { inherit pkgs; };
       atomicCopyClobber = import ./atomic-copy-clobber { inherit pkgs; };
-      configTxt = (pkgs.formats.ini {}).generate "config.txt" cfg.configTxt;
+      configTxt = (pkgs.formats.ini {}).generate "config.txt" (lib.attrsets.recursiveUpdate defaultConfigTxt cfg.configTxt);
       cmdLineTxt = pkgs.writeTextFile {
         name = "cmdline.txt";
         text = ''
