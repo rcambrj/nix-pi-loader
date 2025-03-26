@@ -127,9 +127,9 @@ in {
       default = "LABEL=nixos";
     };
     configTxt = mkOption {
-      description = "Contents of config.txt in a shape expected by makeConfigTxt. Will be merged with some minimum required boot properties.";
+      description = "Contents of config.txt. Will be deeply merged with default.";
       type = types.attrs;
-      default = {};
+      default = defaultConfigTxt;
     };
     defaultConfigTxt = mkOption {
       description = "The default config.txt, for reference";
@@ -159,7 +159,7 @@ in {
     boot.loader.generic-extlinux-compatible-pi-loader.extraCommandsAfter = let
       atomicCopySafe = import ./atomic-copy-safe { inherit pkgs; };
       atomicCopyClobber = import ./atomic-copy-clobber { inherit pkgs; };
-      configTxt = (pkgs.formats.ini {}).generate "config.txt" (lib.attrsets.recursiveUpdate defaultConfigTxt cfg.configTxt);
+      configTxt = (pkgs.formats.ini { listsAsDuplicateKeys = true; }).generate "config.txt" (lib.attrsets.recursiveUpdate defaultConfigTxt cfg.configTxt);
       cmdLineTxt = pkgs.writeTextFile {
         name = "cmdline.txt";
         text = ''

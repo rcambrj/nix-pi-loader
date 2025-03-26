@@ -52,9 +52,60 @@ imports = [
 boot.pi-loader.enable = true;
 ```
 
-You cannot use `boot.loader.generic-extlinux-compatible`. This module disables it because it has its
-own modified version at `boot.loader.generic-extlinux-compatible-pi-loader`. You can customise options
-there instead.
+> [!IMPORTANT]
+> You cannot use `boot.loader.generic-extlinux-compatible`. This module disables it because it has its own modified version at `boot.loader.generic-extlinux-compatible-pi-loader`. You can customise options there instead.
+
+### Authoring config.txt
+
+You can configure [config.txt](https://www.raspberrypi.com/documentation/computers/config_txt.html) with `boot.pi-loader.configTxt`, eg:
+
+```
+boot.pi-loader.configTxt = {
+  all = {
+    gpu_mem = 16;
+  }
+  pi4 = {
+    hdmi_enable_4kp60 = 1;
+  };
+};
+```
+
+> [!NOTE]
+>
+> Beware of `dtoverlay` and `dtparam`! These keys can be declared more than once.
+>
+> To support duplicate keys, this module uses [pkgs.formats.ini](https://github.com/NixOS/nixpkgs/blob/master/pkgs/pkgs-lib/formats.nix) which converts list values to duplicate keys.
+>
+> `dtparam` values are sometimes used between two `dtoverlay=` lines, but this cannot be done, because all `dtparam` values will be placed before the `dtoverlay` values in the generated output. Thankfully, `dtoverlay` can also be used to carry parameters, although there is a 98 character line length limit.
+>
+> So instead of:
+> ```
+> dtoverlay=lirc-rpi
+> dtparam=gpio_out_pin=16
+> dtparam=gpio_in_pin=17
+> dtparam=gpio_in_pull=down
+> dtoverlay=
+> ```
+>
+> You must use:
+>
+>```
+>dtoverlay=lirc-rpi,gpio_out_pin=16,gpio_in_pin=17,gpio_in_pull=down
+>```
+>
+> Which with this module, looks like:
+> 
+> ```
+> boot.pi-loader.configTxt = {
+>   all = {
+>     dtoverlay = [
+>       "lirc-rpi,gpio_out_pin=16,gpio_in_pin=17,gpio_in_pull=down"
+>       # put more values here...
+>     ];
+>     # dtparam = []; # don't use this if the location is important
+>   };
+> };
+> ```
 
 ### Building an image file
 
