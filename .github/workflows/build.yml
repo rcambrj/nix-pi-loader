@@ -85,6 +85,7 @@ jobs:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
           enable_kvm: true
           extra_nix_config: |
+            extra-experimental-features = nix-command flakes
             system-features = kvm big-parallel
             extra-platforms = aarch64-linux
             extra-substituters = https://cache.garnix.io
@@ -98,9 +99,11 @@ jobs:
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+        with:
+          limit-access-to-actor: true
 
       - name: Build image
-        run: nix build -v --extra-experimental-features "nix-command flakes" --print-out-paths -L '.#nixosConfigurations.${{ inputs.host }}.config.system.build.image'
+        run: nix build -v --print-out-paths -L '.#nixosConfigurations.${{ inputs.host }}.config.system.build.image'
 
       - name: Compress image
         run: zip -qq -r nixos-${{ inputs.host }}.zip `find -L ./result -iname "*nixos*"`
