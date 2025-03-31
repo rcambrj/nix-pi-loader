@@ -19,7 +19,7 @@ let
   images = filterAttrs
     (hostName: hostImage: hostImage != false)
     imagesAndFalses;
-in traceSeqN 1 (images) pkgs.symlinkJoin {
+in pkgs.symlinkJoin {
   name = "garnix-build";
   paths = attrValues images;
 }
