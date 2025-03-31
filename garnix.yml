@@ -1,6 +1,4 @@
 builds:
-  exclude:
-  - nixosConfigurations.*
-  - checks.*.pkgs-garnix-build
+  exclude: []
   include:
   - packages.*
