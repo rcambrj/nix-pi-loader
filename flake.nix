@@ -40,8 +40,15 @@
   in
   blueprint // {
     packages = blueprint.packages // {
-      # this system doesn't impact the target system of the hosts
-      x86_64-linux = blueprint.packages."x86_64-linux" // images;
+      # host disk images are put into packages
+      # nixosConfigurations.*.config.system.build.image
+      # because garnix.yml does not permit specifying these targets directly
+      # and building on garnix is significantly better than github runners
+      #
+      # disk images will be built in a qemu virtual machine. the chosen system
+      # (aarch64-linux) might have an impact on build speed, but qemu will fill
+      # the gap (slower) if there is a missmatch
+      aarch64-linux = blueprint.packages."aarch64-linux" // images;
     };
   };
 }
