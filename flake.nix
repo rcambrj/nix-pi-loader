@@ -19,5 +19,29 @@
   };
 
   # Load the blueprint
-  outputs = inputs: inputs.blueprint { inherit inputs; };
+  outputs = inputs:
+  with builtins;
+  with inputs.nixpkgs.lib;
+  let
+    blueprint = inputs.blueprint { inherit inputs; };
+
+    optionalImage = hostConfig: if (
+      (hasAttr "config" hostConfig) &&
+      (hasAttr "system" hostConfig.config) &&
+      (hasAttr "build"  hostConfig.config.system) &&
+      (hasAttr "image"  hostConfig.config.system.build)
+    ) then hostConfig.config.system.build.image else false;
+    imagesAndFalses = mapAttrs
+      (hostName: hostConfig: optionalImage hostConfig)
+      blueprint.nixosConfigurations;
+    images = filterAttrs
+      (hostName: hostImage: hostImage != false)
+      imagesAndFalses;
+  in
+  blueprint // {
+    packages = blueprint.packages // {
+      # this system doesn't impact the target system of the hosts
+      x86_64-linux = blueprint.packages."x86_64-linux" // images;
+    };
+  };
 }
