@@ -91,10 +91,10 @@ jobs:
             extra-substituters = https://cache.garnix.io
             extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=
 
-      - name: Run the Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v2
-        with:
-          diagnostic-endpoint: ""
+      # - name: Run the Magic Nix Cache
+      #   uses: DeterminateSystems/magic-nix-cache-action@v2
+      #   with:
+      #     diagnostic-endpoint: ""
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
